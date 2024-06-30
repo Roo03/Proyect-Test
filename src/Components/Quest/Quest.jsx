@@ -13,23 +13,33 @@ function Quest() {
   const [tiempoRestante, setTiempoRestante] = useState(15);
   const [areDisabled, setAreDisabled] = useState(false);
   const [showCorrectAnswer, setShowCorrectAnswer] = useState(false);
+  const [isPaused, setIsPaused] = useState(false); 
   const answerElementsRef = useRef([]);
-  const startTimeRef = useRef(null);
+  const timeoutRef = useRef(null);
 
   useEffect(() => {
     fetchQuestions();
-    startTimeRef.current = performance.now();
-    const timeout = setTimeout(() => {
-      handleTick();
-    }, 1000);
-    return () => clearTimeout(timeout);
+    startTimer();
+    return () => clearTimeout(timeoutRef.current);
   }, []);
 
   useEffect(() => {
-    if (tiempoRestante <= 0) {
+    if (tiempoRestante > 0 && !isFinished && !isPaused) {
+      startTimer();
+    } else if (tiempoRestante <= 0) {
       handleTimeUp();
     }
-  }, [tiempoRestante]);
+  }, [tiempoRestante, isFinished, isPaused]);
+
+  const startTimer = () => {
+    timeoutRef.current = setTimeout(() => {
+      setTiempoRestante((prevTiempoRestante) => prevTiempoRestante - 1);
+    }, 1000);
+  };
+
+  const pauseTimer = () => {
+    clearTimeout(timeoutRef.current);
+  };
 
   async function fetchQuestions() {
     try {
@@ -42,26 +52,16 @@ function Quest() {
       setTiempoRestante(15);
       setAreDisabled(false);
       setShowCorrectAnswer(false);
+      setIsPaused(false); 
     } catch (error) {
       console.error("Error al obtener preguntas:", error);
     }
   }
 
-  function handleTick() {
-    const currentTime = performance.now();
-    const elapsedTime = Math.floor((currentTime - startTimeRef.current) / 1000);
-    setTiempoRestante((prevTiempoRestante) => {
-      const newTiempoRestante = prevTiempoRestante - elapsedTime;
-      return newTiempoRestante >= 0 ? newTiempoRestante : 0;
-    });
-    startTimeRef.current = currentTime;
-    const timeout = setTimeout(() => {
-      handleTick();
-    }, 1000);
-    return () => clearTimeout(timeout);
-  }
-
   function handleAnswerSubmit(isCorrect, index) {
+    pauseTimer(); 
+    setIsPaused(true);
+    
     if (isCorrect) {
       setPuntuación((puntuación) => puntuación + 1);
     } else {
@@ -69,7 +69,6 @@ function Quest() {
     }
     setAreDisabled(true);
 
-    // Aplicar clase correct si la respuesta es correcta
     if (isCorrect) {
       answerElementsRef.current[index].classList.add("correct");
     } else {
@@ -89,12 +88,13 @@ function Quest() {
   function handleNextQuestion() {
     if (preguntaActual === preguntas.length - 1) {
       setIsFinished(true);
+      clearTimeout(timeoutRef.current);
     } else {
       setPreguntaActual((prev) => prev + 1);
       setTiempoRestante(15);
       setAreDisabled(false);
       setShowCorrectAnswer(false);
-
+      setIsPaused(false); // Reanudar el temporizador
       answerElementsRef.current.forEach((respuesta) =>
         respuesta.classList.remove("correct", "incorrect")
       );
@@ -119,7 +119,7 @@ function Quest() {
 
   function handleTimeUp() {
     setAreDisabled(true);
-    setIsFinished(false); // No establecer isFinished automáticamente
+    setIsFinished(false);
     setShowCorrectAnswer(false);
   }
 
