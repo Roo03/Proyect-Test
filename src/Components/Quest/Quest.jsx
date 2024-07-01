@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import "./quest.css";
 import { Link } from "react-router-dom";
 import { Button } from "@mui/material";
+import { CheckCircle, Cancel } from "@mui/icons-material";
 
 const apiURL = "http://apiexamenes.somee.com/api/pregunta/random/1/10";
 
@@ -13,7 +14,8 @@ function Quest() {
   const [tiempoRestante, setTiempoRestante] = useState(15);
   const [areDisabled, setAreDisabled] = useState(false);
   const [showCorrectAnswer, setShowCorrectAnswer] = useState(false);
-  const [isPaused, setIsPaused] = useState(false); 
+  const [showNextButton, setShowNextButton] = useState(false); // Estado para mostrar el botón de siguiente pregunta
+  const [selectedAnswer, setSelectedAnswer] = useState(null); // Estado para rastrear la respuesta seleccionada
   const answerElementsRef = useRef([]);
   const timeoutRef = useRef(null);
 
@@ -24,12 +26,12 @@ function Quest() {
   }, []);
 
   useEffect(() => {
-    if (tiempoRestante > 0 && !isFinished && !isPaused) {
+    if (tiempoRestante > 0 && !isFinished && !showNextButton) {
       startTimer();
     } else if (tiempoRestante <= 0) {
       handleTimeUp();
     }
-  }, [tiempoRestante, isFinished, isPaused]);
+  }, [tiempoRestante, isFinished, showNextButton]);
 
   const startTimer = () => {
     timeoutRef.current = setTimeout(() => {
@@ -52,7 +54,8 @@ function Quest() {
       setTiempoRestante(15);
       setAreDisabled(false);
       setShowCorrectAnswer(false);
-      setIsPaused(false); 
+      setShowNextButton(false); // Ocultar el botón de siguiente pregunta
+      setSelectedAnswer(null); // Reiniciar la respuesta seleccionada
     } catch (error) {
       console.error("Error al obtener preguntas:", error);
     }
@@ -60,7 +63,6 @@ function Quest() {
 
   function handleAnswerSubmit(isCorrect, index) {
     pauseTimer(); 
-    setIsPaused(true);
     
     if (isCorrect) {
       setPuntuación((puntuación) => puntuación + 1);
@@ -68,6 +70,8 @@ function Quest() {
       setShowCorrectAnswer(true);
     }
     setAreDisabled(true);
+    setShowNextButton(true); // Mostrar el botón de siguiente pregunta
+    setSelectedAnswer(index); // Establecer la respuesta seleccionada
 
     if (isCorrect) {
       answerElementsRef.current[index].classList.add("correct");
@@ -79,10 +83,6 @@ function Quest() {
         answerElementsRef.current[correctAnswerIndex].classList.add("correct");
       }
     }
-
-    setTimeout(() => {
-      handleNextQuestion();
-    }, 1500);
   }
 
   function handleNextQuestion() {
@@ -94,7 +94,8 @@ function Quest() {
       setTiempoRestante(15);
       setAreDisabled(false);
       setShowCorrectAnswer(false);
-      setIsPaused(false); // Reanudar el temporizador
+      setShowNextButton(false); 
+      setSelectedAnswer(null); 
       answerElementsRef.current.forEach((respuesta) =>
         respuesta.classList.remove("correct", "incorrect")
       );
@@ -119,8 +120,7 @@ function Quest() {
 
   function handleTimeUp() {
     setAreDisabled(true);
-    setIsFinished(false);
-    setShowCorrectAnswer(false);
+    setShowNextButton(true); 
   }
 
   return (
@@ -159,7 +159,13 @@ function Quest() {
                       }
                       disabled={areDisabled}
                     >
-                      {respuesta.texto}
+                      <span className="respuesta-texto">{respuesta.texto}</span>
+                      {selectedAnswer === index && respuesta.esCorrecta && (
+                        <CheckCircle className="respuesta-icon" style={{ color: "green" }} />
+                      )}
+                      {selectedAnswer === index && !respuesta.esCorrecta && (
+                        <Cancel className="respuesta-icon" style={{ color: "red" }} />
+                      )}
                     </button>
                   )
                 )}
@@ -173,7 +179,7 @@ function Quest() {
                 {tiempoRestante}
               </div>
             </div>
-            {tiempoRestante <= 0 && (
+            {showNextButton && (
               <div className="next-question-container">
                 <button
                   className="next-question-btn"
