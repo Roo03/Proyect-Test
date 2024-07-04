@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./quest.css";
 import { Link } from "react-router-dom";
-import { Button } from "@mui/material";
 import { CheckCircle, Cancel } from "@mui/icons-material";
 
 const apiURL = "http://apiexamenes.somee.com/api/pregunta/random/1/10";
@@ -14,8 +13,8 @@ function Quest() {
   const [tiempoRestante, setTiempoRestante] = useState(15);
   const [areDisabled, setAreDisabled] = useState(false);
   const [showCorrectAnswer, setShowCorrectAnswer] = useState(false);
-  const [showNextButton, setShowNextButton] = useState(false); // Estado para mostrar el botón de siguiente pregunta
-  const [selectedAnswer, setSelectedAnswer] = useState(null); // Estado para rastrear la respuesta seleccionada
+  const [showNextButton, setShowNextButton] = useState(false); 
+  const [selectedAnswer, setSelectedAnswer] = useState(null); 
   const answerElementsRef = useRef([]);
   const timeoutRef = useRef(null);
 
@@ -54,8 +53,8 @@ function Quest() {
       setTiempoRestante(15);
       setAreDisabled(false);
       setShowCorrectAnswer(false);
-      setShowNextButton(false); // Ocultar el botón de siguiente pregunta
-      setSelectedAnswer(null); // Reiniciar la respuesta seleccionada
+      setShowNextButton(false); 
+      setSelectedAnswer(null); 
     } catch (error) {
       console.error("Error al obtener preguntas:", error);
     }

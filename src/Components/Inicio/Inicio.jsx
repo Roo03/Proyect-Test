@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import "./inicio.css";
+import { Button, Typography } from '@mui/material';
 
 function Inicio() {
   return (
@@ -10,11 +11,11 @@ function Inicio() {
           <h1 className="Titulo">
             Bienvenido al examen
           </h1>
-          <span className="Subtitulo">
+          <Typography className="Subtitulo">
             A continuación, explora preguntas acerca de los videojuegos y prueba qué tanto sabes de ellos y su cultura en general
-          </span>
+          </Typography>
           <Link to="/Quest">
-            <button className='Iniciar'>Continuar</button>
+            <Button className='Iniciar'>Continuar</Button>
           </Link>
         </div>
       </div>

@@ -58,13 +58,13 @@
   animation: fadeIn 2s ease-in-out;
 }
 
-button.Iniciar {
+Button.Iniciar {
   display: block;
   margin: 0 auto;
-  margin-top: 100px;
+  margin-top: 90px;
   width: 150px;
   height: 50px;
-  font-size: 18px;
+  font-size: 15px;
   font-weight: bold;
   color: #252d4a;
   background-color: #f1ff9c;
@@ -76,7 +76,7 @@ button.Iniciar {
   box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
 }
 
-button.Iniciar:hover {
+Button.Iniciar:hover {
   background-color: #dbff5e;
   transform: translateY(-5px);
   box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
